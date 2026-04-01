@@ -3,10 +3,10 @@ import { blogAPI } from '@/lib/feishu'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const data = await blogAPI.get(params.id)
+    const data = await blogAPI.getBySlug(params.slug)
     if (!data) {
       return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })
     }
@@ -18,11 +18,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
     const body = await request.json()
-    const data = await blogAPI.update(params.id, body)
+    const data = await blogAPI.updateBySlug(params.slug, body)
     return NextResponse.json({ success: true, data })
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to update' }, { status: 500 })
@@ -31,10 +31,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    await blogAPI.delete(params.id)
+    await blogAPI.deleteBySlug(params.slug)
     return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to delete' }, { status: 500 })

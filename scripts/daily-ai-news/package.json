@@ -1,0 +1,14 @@
+{
+  "name": "daily-ai-news",
+  "version": "1.0.0",
+  "description": "每日 AI 前沿资讯自动发布脚本",
+  "type": "module",
+  "main": "task.mjs",
+  "scripts": {
+    "start": "node task.mjs",
+    "test": "node task.mjs"
+  },
+  "keywords": ["ai", "news", "blog"],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,34 +1,106 @@
 import Link from 'next/link'
 
-export default function BlogPostPage() {
+interface BlogPost {
+  id: string
+  fields: {
+    '个人网站-博客': string
+    slug: string
+    excerpt: string
+    content: string
+    category: string
+    tags: string[]
+    read_time: number
+    created_at: string
+  }
+}
+
+async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/blog/${slug}`, { cache: 'no-store' })
+    const data = await res.json()
+    return data.success ? data.data : null
+  } catch {
+    return null
+  }
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日`
+}
+
+// 简单的 Markdown 渲染
+function renderMarkdown(content: string) {
+  // 基础转换 - 实际项目中建议用 react-markdown
+  return content
+    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold text-slate-900 mt-8 mb-4">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold text-slate-900 mt-10 mb-4">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold text-slate-900 mt-10 mb-6">$1</h1>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm font-mono text-slate-800">$1</code>')
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto my-6"><code>$2</code></pre>')
+    .replace(/^\- (.*$)/gm, '<li class="ml-4">$1</li>')
+    .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
+    .replace(/\n\n/g, '</p><p class="text-slate-600 leading-relaxed mb-4">')
+    .replace(/\n/g, '<br/>')
+}
+
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getBlogPost(params.slug)
+
+  if (!post) {
+    return (
+      <div className="pt-20 min-h-screen">
+        <section className="py-20 bg-white">
+          <div className="max-w-3xl mx-auto px-4 text-center">
+            <h1 className="text-2xl font-bold mb-4">文章不存在</h1>
+            <Link href="/blog" className="text-primary hover:underline">← 返回博客</Link>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  const { fields } = post
+
   return (
     <div className="pt-20">
-      <section className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 lg:px-12">
-          <Link href="/blog" className="text-primary hover:underline mb-8 inline-block">← 返回博客</Link>
-          <div className="mb-6">
-            <div className="flex gap-2 mb-4">
-              <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">Next.js</span>
-              <span className="px-2 py-1 text-xs bg-secondary/10 text-secondary rounded">React</span>
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">Next.js 14 新特性深度解析</h1>
-            <div className="flex items-center gap-4 text-sm text-slate-500"><span>2026年3月20日</span><span>8 分钟阅读</span></div>
+      <section className="py-12 bg-white border-b border-slate-200">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8">
+          <Link href="/blog" className="text-primary hover:underline mb-6 inline-block">← 返回博客</Link>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            {fields.tags?.map((tag: string) => (
+              <span key={tag} className="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full">{tag}</span>
+            ))}
+          </div>
+          
+          <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+            {fields['个人网站-博客']}
+          </h1>
+          
+          <div className="flex items-center gap-4 text-sm text-slate-500">
+            <span>{formatDate(fields.created_at)}</span>
+            <span>·</span>
+            <span>{fields.read_time} 分钟阅读</span>
           </div>
         </div>
       </section>
-      <section className="py-20 bg-slate-50">
-        <article className="max-w-3xl mx-auto px-4 sm:px-8 lg:px-12">
-          <p className="text-lg text-slate-600 mb-8">Next.js 14 带来了许多令人兴奋的新特性...</p>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">App Router 改进</h2>
-          <p className="text-slate-600 mb-6">App Router 是 Next.js 13 引入的重大新特性，在 14 版本中得到了进一步优化和完善...</p>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">服务端组件</h2>
-          <p className="text-slate-600 mb-6">服务端组件允许你在服务器上直接渲染组件，从而减少客户端 JavaScript 的体积...</p>
-          <pre className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto mb-6"><code>{`export default function Page() {\n  return <h1>Hello, Next.js 14!</h1>\n}`}</code></pre>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">总结</h2>
-          <p className="text-slate-600">Next.js 14 为现代 Web 开发提供了更强大的工具和更好的开发体验...</p>
+
+      <section className="py-12 bg-slate-50">
+        <article className="max-w-3xl mx-auto px-4 sm:px-8">
+          <div 
+            className="prose prose-slate max-w-none"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(fields.content) }}
+          />
+          
           <div className="mt-12 pt-8 border-t border-slate-200">
             <div className="flex flex-wrap gap-2">
-              {['Next.js', 'React', '前端', 'TypeScript'].map(t => <span key={t} className="px-3 py-1 text-sm bg-slate-100 text-slate-600 rounded-full">{t}</span>)}
+              {fields.tags?.map((tag: string) => (
+                <span key={tag} className="px-3 py-1 text-sm bg-slate-200 text-slate-600 rounded-full">{tag}</span>
+              ))}
             </div>
           </div>
         </article>

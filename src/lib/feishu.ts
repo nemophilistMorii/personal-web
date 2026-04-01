@@ -1,6 +1,8 @@
 // 飞书 API 封装
 
 const FEISHU_API_BASE = 'https://open.feishu.cn/open-apis'
+const APP_ID = 'cli_a92695cf22b81bcb'
+const APP_SECRET = 'UnfkhPtqDqd3POnZLK5lTcuwCCnIAE3E'
 
 interface FeishuConfig {
   app_token: string
@@ -17,149 +19,143 @@ export const BLOG_CONFIG: FeishuConfig = {
   table_id: 'tblW1FRwPnjzbgE9',
 }
 
-export async function feishuRequest(
+// 获取 tenant access token
+let cachedToken: string | null = null
+let tokenExpiry = 0
+
+async function getAccessToken(): Promise<string> {
+  if (cachedToken && Date.now() < tokenExpiry) {
+    return cachedToken
+  }
+  
+  const resp = await fetch(`${FEISHU_API_BASE}/auth/v3/tenant_access_token/internal`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ app_id: APP_ID, app_secret: APP_SECRET }),
+  })
+  
+  const data = await resp.json()
+  if (data.code !== 0) {
+    throw new Error(`Failed to get access token: ${data.msg}`)
+  }
+  
+  cachedToken = data.tenant_access_token
+  tokenExpiry = Date.now() + (data.expire - 60) * 1000 // 提前1分钟过期
+  return cachedToken!
+}
+
+async function feishuRequest(
   path: string,
   method: string = 'GET',
   body?: object
 ) {
-  // Note: In production, use proper auth token from environment
-  // This is a simplified version for demo
-  const url = `${FEISHU_API_BASE}${path}`
+  const token = await getAccessToken()
   
-  try {
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Feishu API error: ${response.status}`)
-    }
-    
-    return await response.json()
-  } catch (error) {
-    console.error('Feishu API request failed:', error)
-    throw error
+  const resp = await fetch(`${FEISHU_API_BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  
+  const data = await resp.json()
+  if (data.code !== 0) {
+    throw new Error(`Feishu API error: ${data.msg}`)
   }
+  
+  return data
 }
 
-// For demo/development - using local data store instead of live API
-// This avoids authentication issues during development
-
-interface DataRecord {
-  id: string
-  fields: Record<string, any>
+export async function feishuListRecords(config: FeishuConfig) {
+  const data = await feishuRequest(`/bitable/v1/apps/${config.app_token}/tables/${config.table_id}/records`)
+  return data.data?.items || []
 }
 
-let portfolioData: DataRecord[] = [
-  {
-    id: 'rec001',
-    fields: {
-      '个人网站-作品集': '电商平台',
-      slug: 'ecommerce-platform',
-      description: '完整的电商解决方案，包含用户系统、商品管理、订单处理等功能。',
-      content: '## 项目概述\n\n这是一个完整的电商平台解决方案...\n\n## 核心功能\n\n- 用户注册登录\n- 商品浏览和搜索\n- 购物车管理\n- 订单处理',
-      category: 'Web应用',
-      tags: ['React', 'Node.js', 'MongoDB'],
-      cover_image: '',
-      links: 'https://example.com',
-      published: true,
-    }
-  }
-]
+export async function feishuCreateRecord(config: FeishuConfig, fields: Record<string, any>) {
+  const data = await feishuRequest(`/bitable/v1/apps/${config.app_token}/tables/${config.table_id}/records`, 'POST', { fields })
+  return data.data?.record
+}
 
-let blogData: DataRecord[] = [
-  {
-    id: 'recb001',
-    fields: {
-      '个人网站-博客': 'Next.js 14 新特性深度解析',
-      slug: 'nextjs14-features',
-      excerpt: '深入探讨 Next.js 14 App Router 的核心改进和最佳实践。',
-      content: '## 引言\n\nNext.js 14 带来了许多令人兴奋的新特性...\n\n## App Router 改进\n\nApp Router 是 Next.js 13 引入的重大新特性...',
-      tags: ['Next.js', 'React', '前端'],
-      category: '技术',
-      cover_image: '',
-      published: true,
-      read_time: 8,
-    }
-  }
-]
+export async function feishuUpdateRecord(config: FeishuConfig, recordId: string, fields: Record<string, any>) {
+  const data = await feishuRequest(`/bitable/v1/apps/${config.app_token}/tables/${config.table_id}/records/${recordId}`, 'PUT', { fields })
+  return data.data?.record
+}
+
+export async function feishuDeleteRecord(config: FeishuConfig, recordId: string) {
+  await feishuRequest(`/bitable/v1/apps/${config.app_token}/tables/${config.table_id}/records/${recordId}`, 'DELETE')
+  return { success: true }
+}
 
 // Portfolio API
 export const portfolioAPI = {
   async list() {
-    return portfolioData.filter(r => r.fields.published)
+    const records = await feishuListRecords(PORTFOLIO_CONFIG)
+    return records.filter((r: any) => r.fields.published)
   },
   
   async get(id: string) {
-    return portfolioData.find(r => r.id === id)
+    const records = await feishuListRecords(PORTFOLIO_CONFIG)
+    return records.find((r: any) => r.id === id)
   },
   
   async getBySlug(slug: string) {
-    return portfolioData.find(r => r.fields.slug === slug)
+    const records = await feishuListRecords(PORTFOLIO_CONFIG)
+    return records.find((r: any) => r.fields.slug === slug)
   },
   
   async create(data: Record<string, any>) {
-    const newRecord = {
-      id: `rec${Date.now()}`,
-      fields: { ...data, created_at: new Date().toISOString() }
-    }
-    portfolioData.push(newRecord)
-    return newRecord
+    return feishuCreateRecord(PORTFOLIO_CONFIG, data)
   },
   
   async update(id: string, data: Record<string, any>) {
-    const index = portfolioData.findIndex(r => r.id === id)
-    if (index === -1) throw new Error('Record not found')
-    portfolioData[index] = { ...portfolioData[index], fields: { ...portfolioData[index].fields, ...data } }
-    return portfolioData[index]
+    return feishuUpdateRecord(PORTFOLIO_CONFIG, id, data)
   },
   
   async delete(id: string) {
-    const index = portfolioData.findIndex(r => r.id === id)
-    if (index === -1) throw new Error('Record not found')
-    portfolioData.splice(index, 1)
-    return { success: true }
+    return feishuDeleteRecord(PORTFOLIO_CONFIG, id)
   }
 }
 
 // Blog API
 export const blogAPI = {
   async list() {
-    return blogData.filter(r => r.fields.published)
+    const records = await feishuListRecords(BLOG_CONFIG)
+    return records.filter((r: any) => r.fields.published)
   },
   
   async get(id: string) {
-    return blogData.find(r => r.id === id)
+    const records = await feishuListRecords(BLOG_CONFIG)
+    return records.find((r: any) => r.id === id)
   },
   
   async getBySlug(slug: string) {
-    return blogData.find(r => r.fields.slug === slug)
+    const records = await feishuListRecords(BLOG_CONFIG)
+    return records.find((r: any) => r.fields.slug === slug)
   },
   
   async create(data: Record<string, any>) {
-    const newRecord = {
-      id: `recb${Date.now()}`,
-      fields: { ...data, created_at: new Date().toISOString() }
-    }
-    blogData.push(newRecord)
-    return newRecord
+    return feishuCreateRecord(BLOG_CONFIG, data)
   },
   
   async update(id: string, data: Record<string, any>) {
-    const index = blogData.findIndex(r => r.id === id)
-    if (index === -1) throw new Error('Record not found')
-    blogData[index] = { ...blogData[index], fields: { ...blogData[index].fields, ...data } }
-    return blogData[index]
+    return feishuUpdateRecord(BLOG_CONFIG, id, data)
   },
   
   async delete(id: string) {
-    const index = blogData.findIndex(r => r.id === id)
-    if (index === -1) throw new Error('Record not found')
-    blogData.splice(index, 1)
-    return { success: true }
+    return feishuDeleteRecord(BLOG_CONFIG, id)
+  },
+
+  async updateBySlug(slug: string, data: Record<string, any>) {
+    const record = await this.getBySlug(slug)
+    if (!record) throw new Error('Record not found')
+    return feishuUpdateRecord(BLOG_CONFIG, record.id, data)
+  },
+
+  async deleteBySlug(slug: string) {
+    const record = await this.getBySlug(slug)
+    if (!record) throw new Error('Record not found')
+    return feishuDeleteRecord(BLOG_CONFIG, record.id)
   }
 }
