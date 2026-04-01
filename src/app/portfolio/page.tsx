@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useMemo } from 'react'
 
 interface Portfolio {
   id: string
@@ -30,6 +33,25 @@ export default async function PortfolioPage() {
   const projects = await getPortfolio()
 
   return (
+    <PortfolioClient projects={projects} />
+  )
+}
+
+function PortfolioClient({ projects }: { projects: Portfolio[] }) {
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return projects
+    const q = query.toLowerCase()
+    return projects.filter(p =>
+      p.fields['个人网站-作品集'].toLowerCase().includes(q) ||
+      p.fields.description.toLowerCase().includes(q) ||
+      p.fields.category.toLowerCase().includes(q) ||
+      p.fields.tags?.some((t: string) => t.toLowerCase().includes(q))
+    )
+  }, [projects, query])
+
+  return (
     <div className="pt-20">
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 text-center">
@@ -40,8 +62,19 @@ export default async function PortfolioPage() {
 
       <section className="py-20 bg-slate-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12">
+          {/* 搜索框 */}
+          <div className="mb-8">
+            <input
+              type="text"
+              placeholder="搜索项目名称、描述或标签..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((p) => (
+            {filtered.map((p) => (
               <article key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
                 <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
                   {p.fields.cover_image ? (
@@ -64,8 +97,10 @@ export default async function PortfolioPage() {
               </article>
             ))}
           </div>
-          {projects.length === 0 && (
-            <p className="text-center text-slate-500 py-12">暂无作品</p>
+          {filtered.length === 0 && (
+            <p className="text-center text-slate-500 py-12">
+              {query ? '没有找到匹配的项目' : '暂无作品'}
+            </p>
           )}
         </div>
       </section>

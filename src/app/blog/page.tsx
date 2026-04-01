@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useMemo } from 'react'
 
 interface Blog {
   id: string
@@ -36,6 +39,29 @@ function formatDate(dateStr: string) {
 export default async function BlogPage() {
   const articles = await getBlog()
 
+  // 按时间降序排序，新的在前
+  const sorted = [...articles].sort((a, b) =>
+    new Date(b.fields.created_at).getTime() - new Date(a.fields.created_at).getTime()
+  )
+
+  return (
+    <BlogClient articles={sorted} />
+  )
+}
+
+function BlogClient({ articles }: { articles: Blog[] }) {
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return articles
+    const q = query.toLowerCase()
+    return articles.filter(a =>
+      a.fields['个人网站-博客'].toLowerCase().includes(q) ||
+      a.fields.excerpt.toLowerCase().includes(q) ||
+      a.fields.tags?.some((t: string) => t.toLowerCase().includes(q))
+    )
+  }, [articles, query])
+
   return (
     <div className="pt-20">
       <section className="py-20 bg-white">
@@ -46,8 +72,19 @@ export default async function BlogPage() {
       </section>
       <section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-12">
+          {/* 搜索框 */}
+          <div className="mb-8">
+            <input
+              type="text"
+              placeholder="搜索文章标题、内容或标签..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+            />
+          </div>
+
           <div className="space-y-6">
-            {articles.map((a) => (
+            {filtered.map((a) => (
               <article key={a.id} className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex gap-2 mb-3">
                   {a.fields.tags?.map((t) => (
@@ -65,8 +102,10 @@ export default async function BlogPage() {
               </article>
             ))}
           </div>
-          {articles.length === 0 && (
-            <p className="text-center text-slate-500 py-12">暂无文章</p>
+          {filtered.length === 0 && (
+            <p className="text-center text-slate-500 py-12">
+              {query ? '没有找到匹配的文章' : '暂无文章'}
+            </p>
           )}
         </div>
       </section>
