@@ -1,6 +1,33 @@
 import Link from 'next/link'
+import { portfolioAPI } from '@/lib/feishu'
+import { blogAPI } from '@/lib/feishu'
 
-export default function HomePage() {
+async function getHomeData() {
+  try {
+    const [projects, articles] = await Promise.all([
+      portfolioAPI.list(),
+      blogAPI.list(),
+    ])
+    // 作品集取最新的3个，博客按时间排序取最新的5个
+    const sortedProjects = [...projects].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 3)
+    const sortedArticles = [...articles]
+      .sort((a, b) => new Date(b.fields.created_at).getTime() - new Date(a.fields.created_at).getTime())
+      .slice(0, 5)
+    return { projects: sortedProjects, articles: sortedArticles }
+  } catch {
+    return { projects: [], articles: [] }
+  }
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+export default async function HomePage() {
+  const { projects, articles } = await getHomeData()
+
   return (
     <>
       {/* Hero */}
@@ -58,23 +85,35 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12">
           <h2 className="text-3xl font-bold text-center text-slate-900 mb-4">精选作品</h2>
           <p className="text-center text-slate-600 mb-12 max-w-2xl mx-auto">展示具有代表性的项目案例，体现专业能力和技术实力。</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
-                </div>
-                <div className="p-6">
-                  <div className="flex gap-2 mb-3">
-                    <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">React</span>
-                    <span className="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded">TypeScript</span>
+          {projects.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((p) => (
+                <div key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                  <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
+                    {p.fields.cover_image ? (
+                      <img src={p.fields.cover_image} alt={p.fields['个人网站-作品集']} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
+                    )}
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">项目案例 {i}</h3>
-                  <p className="text-sm text-slate-600 mb-4">项目简短描述，展示核心功能和成果。</p>
-                  <Link href="/portfolio" className="text-primary text-sm font-medium hover:underline">查看详情 →</Link>
+                  <div className="p-6">
+                    <div className="flex gap-2 mb-3">
+                      <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">{p.fields.category}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">{p.fields['个人网站-作品集']}</h3>
+                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">{p.fields.description}</p>
+                    <Link href={`/portfolio/${p.fields.slug}`} className="text-primary text-sm font-medium hover:underline">查看详情 →</Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-slate-500">暂无作品</p>
+          )}
+          <div className="text-center mt-12">
+            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base">
+              查看全部作品
+            </Link>
           </div>
         </div>
       </section>
@@ -84,16 +123,25 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12">
           <h2 className="text-3xl font-bold text-center text-slate-900 mb-4">最新博客</h2>
           <p className="text-center text-slate-600 mb-12 max-w-2xl mx-auto">分享技术见解和实践经验。</p>
-          <div className="max-w-3xl mx-auto space-y-4">
-            {[1, 2, 3, 4, 5].map(i => (
-              <Link key={i} href="/blog" className="block p-6 bg-slate-50 rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-4 mb-2">
-                  <span className="text-sm text-slate-500">2026-03-{20 - i}</span>
-                  <span className="text-sm text-primary">5 分钟阅读</span>
-                </div>
-                <h3 className="text-lg font-medium text-slate-900 hover:text-primary transition-colors">技术文章标题示例 {i}</h3>
-              </Link>
-            ))}
+          {articles.length > 0 ? (
+            <div className="max-w-3xl mx-auto space-y-4">
+              {articles.map((a) => (
+                <Link key={a.id} href={`/blog/${a.fields.slug}`} className="block p-6 bg-slate-50 rounded-lg hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-4 mb-2">
+                    <span className="text-sm text-slate-500">{formatDate(a.fields.created_at)}</span>
+                    <span className="text-sm text-primary">{a.fields.read_time || 5} 分钟阅读</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-slate-900 hover:text-primary transition-colors">{a.fields['个人网站-博客']}</h3>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-slate-500">暂无博客文章</p>
+          )}
+          <div className="text-center mt-12">
+            <Link href="/blog" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base">
+              阅读更多文章
+            </Link>
           </div>
         </div>
       </section>
