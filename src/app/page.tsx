@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { portfolioAPI } from '@/lib/feishu'
 import { blogAPI } from '@/lib/feishu'
+import { RandomPattern } from '@/components/ui/RandomPattern'
 
 async function getHomeData() {
   try {
@@ -89,11 +90,11 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((p) => (
                 <div key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm card-hover">
-                  <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
+                  <div className="aspect-video relative overflow-hidden">
                     {p.fields.cover_image ? (
                       <img src={p.fields.cover_image} alt={p.fields['个人网站-作品集']} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
+                      <RandomPattern seed={p.id} />
                     )}
                   </div>
                   <div className="p-6">

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <radialGradient id="g3" cx="70%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#a18cd1"/>
+      <stop offset="50%" stop-color="#7b4397"/>
+      <stop offset="100%" stop-color="#dc2430"/>
+    </radialGradient>
+    <filter id="blur3"><feGaussianBlur stdDeviation="65"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#1a1a2e"/>
+  <ellipse cx="550" cy="180" rx="420" ry="320" fill="url(#g3)" filter="url(#blur3)" opacity="0.8"/>
+</svg>

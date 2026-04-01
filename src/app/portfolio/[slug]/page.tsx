@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { portfolioAPI } from '@/lib/feishu'
+import { RandomPattern } from '@/components/ui/RandomPattern'
 
 interface Portfolio {
   id: string
@@ -47,14 +48,14 @@ export default async function PortfolioDetailPage({ params }: { params: { slug: 
         <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-12">
           <Link href="/portfolio" className="text-primary hover:underline mb-8 inline-block">← 返回作品集</Link>
 
-          {fields.cover_image && (
-            <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg mb-8 overflow-hidden">
+          {fields.cover_image ? (
+            <div className="aspect-video rounded-lg mb-8 overflow-hidden">
               <img src={fields.cover_image} alt={fields['个人网站-作品集']} className="w-full h-full object-cover" />
             </div>
-          )}
-
-          {!fields.cover_image && (
-            <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg mb-8" />
+          ) : (
+            <div className="aspect-video rounded-lg mb-8 overflow-hidden">
+              <RandomPattern seed={project.id} className="w-full h-full" />
+            </div>
           )}
 
           <div className="flex items-center gap-3 mb-4">
