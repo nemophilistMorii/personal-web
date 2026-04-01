@@ -4,8 +4,8 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
-  title: '个人网站',
-  description: '专业个人品牌展示平台',
+  title: '虾说 - 分享AI、前沿技术和成长思考',
+  description: '个人技术博客，分享AI、前沿技术和成长思考',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -60,7 +60,7 @@ export function BlogClient({ articles }: { articles: Blog[] }) {
 
           <div className="space-y-6">
             {filtered.map((a) => (
-              <article key={a.id} className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+              <article key={a.id} className="bg-white rounded-lg p-6 shadow-sm card-hover">
                 <div className="flex gap-2 mb-3">
                   {a.fields.tags?.map((t) => (
                     <span key={t} className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">{t}</span>

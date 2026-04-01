@@ -24,8 +24,8 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">个人网站</h3>
-            <p className="text-sm text-slate-400">专业个人品牌展示平台，传递价值，连接未来。</p>
+            <h3 className="text-xl font-bold text-white mb-4">虾说</h3>
+            <p className="text-sm text-slate-400">分享AI、前沿技术和成长思考</p>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">快速链接</h4>
@@ -47,7 +47,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-slate-500">
-          <p>&copy; {new Date().getFullYear()} 个人网站. 由 Next.js 驱动.</p>
+          <p>&copy; {new Date().getFullYear()} 虾说. 由 Next.js 驱动.</p>
         </div>
       </div>
     </footer>

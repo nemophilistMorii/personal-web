@@ -34,16 +34,16 @@ export default async function HomePage() {
       <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 text-center py-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 animate-slide-up">
-            你好，我是 <span className="text-gradient">开发者</span>
+            欢迎来到 <span className="text-gradient-animated">虾说</span>
           </h1>
           <p className="text-lg sm:text-xl text-slate-600 mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            全栈工程师，专注于构建优雅、高效的数字产品。
+            一个关于AI、技术与成长的个人博客，在这里看见更大的世界。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base">
+            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base btn-press">
               查看作品
             </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base">
+            <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base btn-press">
               联系我
             </Link>
           </div>
@@ -88,7 +88,7 @@ export default async function HomePage() {
           {projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((p) => (
-                <div key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm card-hover">
                   <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
                     {p.fields.cover_image ? (
                       <img src={p.fields.cover_image} alt={p.fields['个人网站-作品集']} className="w-full h-full object-cover" />
@@ -111,7 +111,7 @@ export default async function HomePage() {
             <p className="text-center text-slate-500">暂无作品</p>
           )}
           <div className="text-center mt-12">
-            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base">
+            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base btn-press">
               查看全部作品
             </Link>
           </div>
@@ -126,7 +126,7 @@ export default async function HomePage() {
           {articles.length > 0 ? (
             <div className="max-w-3xl mx-auto space-y-4">
               {articles.map((a) => (
-                <Link key={a.id} href={`/blog/${a.fields.slug}`} className="block p-6 bg-slate-50 rounded-lg hover:shadow-md transition-shadow">
+                <Link key={a.id} href={`/blog/${a.fields.slug}`} className="block p-6 bg-slate-50 rounded-lg card-hover">
                   <div className="flex items-center gap-4 mb-2">
                     <span className="text-sm text-slate-500">{formatDate(a.fields.created_at)}</span>
                     <span className="text-sm text-primary">{a.fields.read_time || 5} 分钟阅读</span>
@@ -139,7 +139,7 @@ export default async function HomePage() {
             <p className="text-center text-slate-500">暂无博客文章</p>
           )}
           <div className="text-center mt-12">
-            <Link href="/blog" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base">
+            <Link href="/blog" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base btn-press">
               阅读更多文章
             </Link>
           </div>
@@ -151,7 +151,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">准备好开始合作了吗？</h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">无论是项目合作、技术咨询还是其他问题，我都期待与您交流。</p>
-          <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base bg-white text-primary hover:bg-slate-100">
+          <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base bg-white text-primary hover:bg-slate-100 btn-press">
             开始对话
           </Link>
         </div>

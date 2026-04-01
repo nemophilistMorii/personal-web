@@ -33,7 +33,7 @@ export function Navbar() {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all ${isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-sm' : 'bg-transparent'}`}>
       <nav className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-gradient">个人网站</Link>
+        <Link href="/" className="text-xl font-bold text-gradient">虾说</Link>
         
         <ul className="hidden md:flex items-center gap-8">
           {navLinks.map(link => (

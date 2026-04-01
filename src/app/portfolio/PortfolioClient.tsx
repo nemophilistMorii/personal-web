@@ -55,7 +55,7 @@ export function PortfolioClient({ projects }: { projects: Portfolio[] }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((p) => (
-              <article key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+              <article key={p.id} className="bg-white rounded-lg overflow-hidden shadow-sm card-hover">
                 <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 relative">
                   {p.fields.cover_image ? (
                     <img src={p.fields.cover_image} alt={p.fields['个人网站-作品集']} className="w-full h-full object-cover" />
