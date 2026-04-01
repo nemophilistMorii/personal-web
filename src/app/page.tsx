@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
 
 export default function HomePage() {
   return (
@@ -14,11 +13,11 @@ export default function HomePage() {
             全栈工程师，专注于构建优雅、高效的数字产品。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Link href="/portfolio">
-              <Button variant="primary" size="lg">查看作品</Button>
+            <Link href="/portfolio" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 bg-primary text-white hover:bg-primary-dark h-12 px-6 text-base">
+              查看作品
             </Link>
-            <Link href="/contact">
-              <Button variant="secondary" size="lg">联系我</Button>
+            <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base">
+              联系我
             </Link>
           </div>
         </div>
@@ -104,8 +103,8 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">准备好开始合作了吗？</h2>
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">无论是项目合作、技术咨询还是其他问题，我都期待与您交流。</p>
-          <Link href="/contact">
-            <Button variant="secondary" size="lg" className="bg-white text-primary hover:bg-slate-100">开始对话</Button>
+          <Link href="/contact" className="inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 border-2 border-primary text-primary hover:bg-primary hover:text-white h-12 px-6 text-base bg-white text-primary hover:bg-slate-100">
+            开始对话
           </Link>
         </div>
       </section>
