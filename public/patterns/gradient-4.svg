@@ -1,12 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
   <defs>
-    <radialGradient id="g4" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#667eea"/>
-      <stop offset="50%" stop-color="#764ba2"/>
-      <stop offset="100%" stop-color="#1e3c72"/>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#200122"/>
+    </linearGradient>
+    <radialGradient id="c4a" cx="55%" cy="45%" r="36%">
+      <stop offset="0%" stop-color="#f093fb" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#f093fb" stop-opacity="0"/>
     </radialGradient>
-    <filter id="blur4"><feGaussianBlur stdDeviation="55"/></filter>
+    <radialGradient id="c4b" cx="20%" cy="70%" r="30%">
+      <stop offset="0%" stop-color="#f5576c" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#f5576c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="c4c" cx="80%" cy="25%" r="22%">
+      <stop offset="0%" stop-color="#ffd89b" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffd89b" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="800" height="600" fill="#0a0a1a"/>
-  <ellipse cx="400" cy="300" rx="380" ry="280" fill="url(#g4)" filter="url(#blur4)" opacity="0.9"/>
+  <rect width="800" height="600" fill="url(#bg4)"/>
+  <circle cx="440" cy="270" r="200" fill="url(#c4a)"/>
+  <circle cx="160" cy="420" r="165" fill="url(#c4b)"/>
+  <circle cx="640" cy="150" r="125" fill="url(#c4c)"/>
+  <circle cx="700" cy="400" r="65" fill="#f5576c" opacity="0.3"/>
+  <circle cx="250" cy="100" r="45" fill="#ffd89b" opacity="0.35"/>
 </svg>
